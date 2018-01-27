@@ -3,22 +3,22 @@
  <image source="tiles.png" width="1024" height="1024"/>
  <tile id="0">
   <properties>
-   <property name="mirror" type="float" value="45"/>
+   <property name="mirror" type="int" value="45"/>
   </properties>
  </tile>
  <tile id="1">
   <properties>
-   <property name="mirror" type="float" value="90"/>
+   <property name="mirror" type="int" value="90"/>
   </properties>
  </tile>
  <tile id="2">
   <properties>
-   <property name="mirror" type="float" value="135"/>
+   <property name="mirror" type="int" value="135"/>
   </properties>
  </tile>
  <tile id="3">
   <properties>
-   <property name="mirror" type="float" value="180"/>
+   <property name="mirror" type="int" value="0"/>
   </properties>
  </tile>
  <tile id="8">
