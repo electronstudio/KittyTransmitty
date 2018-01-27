@@ -48,6 +48,7 @@
  </tile>
  <tile id="51">
   <properties>
+   <property name="goal" type="bool" value="true"/>
    <property name="obstacle" type="bool" value="true"/>
   </properties>
  </tile>

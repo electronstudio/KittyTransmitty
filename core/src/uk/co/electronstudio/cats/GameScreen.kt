@@ -14,7 +14,7 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 
-class GameScreen : Screen{
+class GameScreen(val level: Level) : Screen{
 
 
 
@@ -44,7 +44,7 @@ class GameScreen : Screen{
         //  Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0))
         pm.dispose()
 
-        val map = TmxMapLoader().load("level1.tmx")!!
+        val map = level.map
 
         mapRenderer = OrthogonalTiledMapRenderer(map, 1f)
         debugRenderer = ShapeRenderer()
@@ -206,6 +206,9 @@ class GameScreen : Screen{
     private fun doInput() {
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit()
+        }
+        if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {
+            CatGame.app.nextLevel()
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
