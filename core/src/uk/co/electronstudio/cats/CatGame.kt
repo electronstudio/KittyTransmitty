@@ -8,9 +8,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.maps.tiled.TiledMapTile
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.Vector3
 
 
 class CatGame : ApplicationAdapter() {
@@ -23,14 +25,20 @@ class CatGame : ApplicationAdapter() {
     lateinit var goal: Thing
     lateinit var layer: TiledMapTileLayer
 
+
+    lateinit var mirror0: TiledMapTile
+    lateinit var mirror45: TiledMapTile
+    lateinit var mirror90: TiledMapTile
+    lateinit var mirror135: TiledMapTile
+
     val path = Path()
 
     override fun create() {
         batch = SpriteBatch()
-        background = Texture("space.jpg")
+        background = Texture("template_backdrop_v1.png")
         cam = setupCam(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
         val pm = Pixmap(Gdx.files.internal("pawprint.png"))
-        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0))
+      //  Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0))
         pm.dispose()
 
         val map = TmxMapLoader().load("level1.tmx")!!
@@ -56,12 +64,25 @@ class CatGame : ApplicationAdapter() {
         }
         println("origin $origin")
 
+        for(tile: TiledMapTile in map.tileSets.getTileSet(0)){
+            if(tile.properties["mirror"] != null){
+                val angle = tile.properties["mirror"] as Int
+                when(angle){
+                    0 -> mirror0=tile
+                    45 -> mirror45=tile
+                    90 -> mirror90=tile
+                    135 -> mirror135=tile
+                }
+            }
+        }
+
         calculatePath()
     }
 
     class Thing(val x: Int, val y: Int)
 
     private fun calculatePath() {
+        path.points.clear()
         var xVel = 0
         var yVel = 1
         var x = origin.x
@@ -87,6 +108,10 @@ class CatGame : ApplicationAdapter() {
             if (cell.tile.properties.containsKey("goal")) {
                 path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
                 break //win
+            }
+            if (cell.tile.properties.containsKey("obstacle")) {
+                path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
+                break
             }
             if (cell.tile.properties.containsKey("mirror")) {
                 val angle: Int = cell.tile.properties["mirror"] as Int
@@ -179,6 +204,31 @@ class CatGame : ApplicationAdapter() {
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
             Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
+        }
+        if (Gdx.input.justTouched()){
+
+            val mouse = cam.unproject(Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f))
+            val x = (mouse.x/128).toInt()
+            val y = (mouse.y/128).toInt()
+            println("pressed at $x $y")
+            val cell = layer.getCell(x, y)
+            if(cell!=null) {
+                val tile = cell.tile
+                println("tile ${tile.id} comparing to ${mirror0.id}")
+                if(tile.id == mirror0.id){
+                    cell.setTile(mirror45)
+                }
+                if(tile.id == mirror45.id){
+                    cell.setTile(mirror90)
+                }
+                if(tile.id == mirror90.id){
+                    cell.setTile(mirror135)
+                }
+                if(tile.id == mirror135.id){
+                    cell.setTile(mirror0)
+                }
+            }
+            calculatePath()
         }
     }
 
