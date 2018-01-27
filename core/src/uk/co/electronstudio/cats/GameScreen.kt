@@ -112,6 +112,7 @@ class GameScreen(val level: Level) : Screen{
             println("cell has properties ${cell.tile.properties}")
             if (cell.tile.properties.containsKey("goal")) {
                 path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
+                CatGame.app.nextLevel()
                 break //win
             }
             if (cell.tile.properties.containsKey("obstacle")) {
