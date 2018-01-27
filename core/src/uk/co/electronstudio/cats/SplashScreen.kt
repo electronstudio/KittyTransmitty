@@ -64,7 +64,7 @@ class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: 
     override fun render(delta: Float) {
 
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY)){
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) || Gdx.input.justTouched()){
             end()
         }
 
