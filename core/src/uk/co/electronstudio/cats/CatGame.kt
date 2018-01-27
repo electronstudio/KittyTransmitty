@@ -3,12 +3,15 @@ package uk.co.electronstudio.cats
 import com.badlogic.gdx.ApplicationAdapter
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.sun.deploy.uitoolkit.ToolkitStore.dispose
-import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.maps.tiled.TmxMapLoader
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
+import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Vector2
+
 
 
 
@@ -16,6 +19,13 @@ class CatGame : ApplicationAdapter() {
     lateinit var batch: SpriteBatch
     lateinit var background: Texture
     lateinit var cam: OrthographicCamera
+    lateinit var mapRenderer: OrthogonalTiledMapRenderer
+    lateinit var debugRenderer : ShapeRenderer
+    lateinit var origin: Thing
+    lateinit var goal:  Thing
+    lateinit var layer: TiledMapTileLayer
+
+    val path = Path()
 
     override fun create() {
         batch = SpriteBatch()
@@ -24,6 +34,63 @@ class CatGame : ApplicationAdapter() {
         val pm = Pixmap(Gdx.files.internal("pawprint.png"))
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0))
         pm.dispose()
+
+        val map = TmxMapLoader().load("level1.tmx")!!
+
+        mapRenderer = OrthogonalTiledMapRenderer(map, 1f)
+        debugRenderer =    ShapeRenderer()
+
+
+        layer = map.layers[0] as TiledMapTileLayer
+        for (x: Int in 0..layer.width-1){
+            for(y: Int in 0..layer.height-1){
+                val cell = layer.getCell(x, y)
+                println("$x $y")
+                if(cell != null) {
+                    if (cell.tile.properties.containsKey("origin")) {
+                        origin = Thing(x, y)
+                    }
+                    if (cell.tile.properties.containsKey("goal")) {
+                        goal = Thing(x, y)
+                    }
+                }
+            }
+        }
+        println("origin $origin")
+
+        calculatePath()
+    }
+
+    class Thing(val x: Int, val y: Int)
+
+    private fun calculatePath() {
+        var xVel=0
+        var yVel=1
+        var x = origin.x
+        var y = origin.y
+        path.points.add(Vector2(x*128f+64f, y*128f+64f))
+        while (true){
+            x+=xVel
+            y+=yVel
+            println("$x $y")
+            if(x>layer.width || x<0 || y>layer.height || y<0){
+                path.points.add(Vector2(x*128f+64f, y*128f+64f))
+                println(" breaking width ${layer.width} height ${layer.height}")
+                break
+            }
+            val cell = layer.getCell(x,y)
+            if(cell==null){
+                continue
+            }
+            if(cell.tile.properties.containsKey("goal")){
+                path.points.add(Vector2(x*128f+64f, y*128f+64f))
+                break //win
+            }
+            path.points.add(Vector2(x*128f+64f, y*128f+64f))
+
+
+
+        }
     }
 
     override fun render() {
@@ -34,10 +101,40 @@ class CatGame : ApplicationAdapter() {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         drawBackground()
         drawSprites()
+        drawLaser()
+    }
+
+    private fun drawLaser() {
+        batch.begin()
+        for(i: Int in 0..path.points.lastIndex-1) {
+            drawLine(path.points[i], path.points[i + 1], 15, Color.RED, cam.combined)
+            drawLine(path.points[i], path.points[i + 1], 3, Color.WHITE, cam.combined)
+        }
+        batch.end()
     }
 
     private fun drawSprites() {
+        batch.begin()
+        mapRenderer.setView(cam)
 
+
+        mapRenderer.render()
+        batch.end()
+
+
+    }
+
+
+
+
+    fun drawLine(start: Vector2, end: Vector2, lineWidth: Int, color: Color, projectionMatrix: Matrix4) {
+        Gdx.gl.glLineWidth(lineWidth.toFloat())
+        debugRenderer.setProjectionMatrix(projectionMatrix)
+        debugRenderer.begin(ShapeRenderer.ShapeType.Line)
+        debugRenderer.setColor(color)
+        debugRenderer.line(start, end)
+        debugRenderer.end()
+        Gdx.gl.glLineWidth(1f)
     }
 
     private fun drawBackground() {
