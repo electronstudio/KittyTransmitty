@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.1" orientation="orthogonal" renderorder="right-down" width="15" height="8" tilewidth="128" tileheight="128" infinite="0" nextobjectid="1">
+<map version="1.0" tiledversion="1.1.0" orientation="orthogonal" renderorder="right-down" width="15" height="8" tilewidth="128" tileheight="128" infinite="0" nextobjectid="1">
  <tileset firstgid="1" source="tiles.tsx"/>
+ <tileset firstgid="65" source="template_assets_v1.tsx"/>
  <layer name="Tile Layer 1" width="15" height="8">
   <data encoding="csv">
 0,0,0,0,10,0,0,0,0,0,0,0,0,0,0,
 0,1,4,0,1,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,2,0,0,1,0,0,0,2,0,0,0,3,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,3,0,0,1,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,120,0,0,0,0,0,0,0,0,0,
+0,2,0,0,1,0,0,101,2,0,0,121,3,0,0,
+0,0,0,0,0,0,0,0,0,0,0,121,133,0,0,
+0,3,0,0,1,121,0,0,0,0,0,121,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,9,0,0
 </data>
