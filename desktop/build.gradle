@@ -36,20 +36,52 @@ task dist(type: Jar) {
 
 dist.dependsOn classes
 
-eclipse {
-    project {
-        name = appName + "-desktop"
-        linkedResource name: 'assets', type: '2', location: 'PARENT-1-PROJECT_LOC/core/assets'
-    }
+
+apply plugin: 'javafx-gradle-plugin'
+
+String osName = org.gradle.internal.os.OperatingSystem.current().getName();
+String osVersion = org.gradle.internal.os.OperatingSystem.current().getVersion();
+String os='unknown'
+println "*** $osName $osVersion was detected."
+
+
+if (org.gradle.internal.os.OperatingSystem.current().isLinux()) {
+    os='linux'
+    //       appName = 'RetroWarLinux'
+} else if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+    os='windows'
+    println "(MAYBE RUN WIN.BAT TO FIX DPI?)"
+    //       appName = 'RetroWarWindows'
+} else if (org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+    os='mac'
+} else {
+    // unknown OS.
 }
 
-task afterEclipseImport(description: "Post processing after project generation", group: "IDE") {
-  doLast {
-    def classpath = new XmlParser().parse(file(".classpath"))
-    new Node(classpath, "classpathentry", [ kind: 'src', path: 'assets' ]);
-    def writer = new FileWriter(file(".classpath"))
-    def printer = new XmlNodePrinter(new PrintWriter(writer))
-    printer.setPreserveWhitespace(true)
-    printer.print(classpath)
-  }
+jfx {
+    // minimal requirement for jfxJar-task
+    mainClass = 'uk.co.electronstudio.cats.desktop.DesktopLauncher'
+    appName = "KittyTransmitty"
+    verbose = true
+
+    addPackagerJar = false
+    nativeReleaseVersion = "$version"
+    // minimal requirement for jfxNative-task
+    vendor = 'TeamCat'
+
+    //manifestAttributes = ['Implementation-Version': version]
+
+    //  alternativePathToJarFile = 'build/libs/desktop-0.0.1.jar'
+
+    bundler=os+'.app'
+
+
+
+    copyAdditionalAppResourcesToJar = true
+    //  additionalBundlerResources = '../android/assets/'
+    additionalAppResources = '../core/assets/'
+
+    bundleArguments = [
+            systemWide: true
+    ]
 }

@@ -17,7 +17,7 @@ class CatGame : Game() {
         app = this
 
         levels = arrayListOf<Level>(
-                Level("LEVEL 1", "level1.tmx"),
+                Level("LEVEL 1", "level1_1.tmx"),
                 Level("LEVEL 2", "level1.tmx"),
                 Level("choo choo", "level1.tmx"
         ))

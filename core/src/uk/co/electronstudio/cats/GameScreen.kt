@@ -50,7 +50,7 @@ class GameScreen(val level: Level) : Screen{
         debugRenderer = ShapeRenderer()
 
 
-        layer = map.layers[0] as TiledMapTileLayer
+        layer = map.layers.last() as TiledMapTileLayer
         for (x: Int in 0..layer.width - 1) {
             for (y: Int in 0..layer.height - 1) {
                 val cell = layer.getCell(x, y)

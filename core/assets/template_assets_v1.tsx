@@ -11,6 +11,16 @@
    <property name="obstacle" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="25">
+  <properties>
+   <property name="origin" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="27">
+  <properties>
+   <property name="goal" type="bool" value="true"/>
+  </properties>
+ </tile>
  <tile id="33">
   <properties>
    <property name="obstacle" type="bool" value="true"/>
@@ -48,7 +58,6 @@
  </tile>
  <tile id="51">
   <properties>
-   <property name="goal" type="bool" value="true"/>
    <property name="obstacle" type="bool" value="true"/>
   </properties>
  </tile>
@@ -100,11 +109,6 @@
  <tile id="70">
   <properties>
    <property name="obstacle" type="bool" value="true"/>
-  </properties>
- </tile>
- <tile id="96">
-  <properties>
-   <property name="origin" type="bool" value="true"/>
   </properties>
  </tile>
 </tileset>
