@@ -54,6 +54,10 @@ class CatGame : Game() {
                         "level3_4.tmx",
                         "level3_5.tmx",
                         "level3_6.tmx"
+                )),
+                RandomLevel("LEVEL 4", arrayListOf(
+                        "level58_1.tmx",
+                        "level88_1.tmx"
                 ))
         )
 
