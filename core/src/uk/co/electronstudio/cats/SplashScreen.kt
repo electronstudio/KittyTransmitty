@@ -18,7 +18,7 @@ import net.dermetfan.gdx.Typewriter
  * Created by richard on 23/06/2016.
  * A GDX screen, i.e. a render loop, used to show a logo plus text before the game starts
  */
-class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: String,
+class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: String? = null,
                    val bg: Color = Color.BLACK,  WIDTH: Float,  HEIGHT: Float,
                     val time:Float = 7.4f, val textX:Float=100f, val textY:Float=100f) : ScreenWithCamera(WIDTH, HEIGHT) {
 
@@ -103,9 +103,10 @@ class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: 
 
       //  glyphLayout.setText(font, typewriter.updateAndType(text, delta))
       //  font.draw(batch, glyphLayout, (WIDTH - glyphLayout.width) / 2, HEIGHT)
+        if(text!=null) {
+            font.draw(batch, typewriter.updateAndType(text, delta), textX, textY)
 
-        font.draw(batch,  typewriter.updateAndType(text, delta), textX, textY)
-
+        }
         batch.end()
 //
 //        renderer.renderFBOtoScreen()
