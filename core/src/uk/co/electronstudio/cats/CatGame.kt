@@ -107,7 +107,7 @@ class CatGame : Game() {
     }
 
     private fun createLevelScreen() {
-        levelScreen = SplashScreen(gameScreen, text = levels[level].name, logo = Texture("dialogue_clear_box.png"),bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f, textX = 761f, textY = 1080-508f, time = 4f)
+        levelScreen = SplashScreen(gameScreen, text = levels[level].name, logo = Texture("dialogue_clear_box.png"),bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f, textX = 670f, textY = 1080-508f, time = 4f)
 
 
     }

@@ -14,7 +14,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
-import kotlin.concurrent.timer
+
 
 class GameScreen(val level: Level) : Screen{
 
@@ -240,10 +240,8 @@ class GameScreen(val level: Level) : Screen{
 
     // nasty nasty last minute hack
     private fun bulletLogic() {
-        println("drawsprites $bulletTarget")
         val b = bulletTarget
         if(b!=null) {
-            println("drawing bullet")
             if (bullet.x < b.x ){
                 bullet.x++
             }
@@ -258,7 +256,7 @@ class GameScreen(val level: Level) : Screen{
             }
             if (bullet.x.toInt()==b.x.toInt() && bullet.y.toInt()==b.y.toInt()){
                 pathCounter++
-                if(pathCounter<path.points.lastIndex) {
+                if(pathCounter<=path.points.lastIndex) {
                     bulletTarget = path.points[pathCounter]
                 }
             }
@@ -268,7 +266,7 @@ class GameScreen(val level: Level) : Screen{
     private fun drawStats() {
         batch.begin()
        level.shotLimit?.let {
-            font.draw(batch, "LASER POWER: ${it-shots}", 0f, 20f)
+            font.draw(batch, "LASER POWER: ${it-shots}", 0f, 50f)
         }
         batch.end()
     }
