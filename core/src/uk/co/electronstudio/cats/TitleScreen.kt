@@ -6,7 +6,6 @@ import com.badlogic.gdx.Screen
 import com.badlogic.gdx.ScreenAdapter
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
-import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
@@ -18,30 +17,21 @@ import net.dermetfan.gdx.Typewriter
  * Created by richard on 23/06/2016.
  * A GDX screen, i.e. a render loop, used to show a logo plus text before the game starts
  */
-class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: String,
-                   val bg: Color = Color.BLACK,  WIDTH: Float,  HEIGHT: Float,
-                    val time:Float = 7.4f, val textX:Float=100f, val textY:Float=100f) : ScreenWithCamera(WIDTH, HEIGHT) {
+class TitleScreen(val bg: Color = Color.BLACK,  WIDTH: Float,  HEIGHT: Float) : ScreenWithCamera(WIDTH, HEIGHT) {
 
 
 
-    private val typewriter = Typewriter()
-
-    internal var glyphLayout = GlyphLayout()
-
+    val logo: Texture = Texture("space.jpg")
 
 
     internal var font = BitmapFont(Gdx.files.internal("big.fnt"))
 
 
-    fun end() {
-        CatGame.app.setScreen(nextScreen)
-    }
+
 
     init {
 
-        typewriter.charsPerSecond = 20f
-        typewriter.isCursorWhileTyping = true
-        typewriter.isCursorAfterTyping = true
+
 
         logo?.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest)
 
@@ -49,22 +39,17 @@ class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: 
         font.region.texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest)
 
 
-        cam = setupCam(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
-
 
     }
 
-
-
     override fun show() {
-        timer = 0f
+
 
       //  App.playTitleMusic()
 
     }
 
-    var timer: Float = 0f
-    var count = 0
+
 
     override fun render(delta: Float) {
         super.render(delta)
@@ -73,15 +58,10 @@ class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: 
         }
 
         if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) || Gdx.input.justTouched()){
-            end()
+            CatGame.app.setScreen(CatGame.app.levelScreen)
         }
 
-        timer += delta
 
-        if (timer > time) end()
-
-        cam.update();
-        batch.setProjectionMatrix(cam.combined);
 
 //        val batch = renderer.beginFBO()
 //
@@ -96,25 +76,13 @@ class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: 
 
         batch.end()
 
-        val c = Color(bg.r, bg.g, bg.b, Math.cos(timer.toDouble() / 1.25).toFloat())
-        //renderer.darkenScreen(c)
 
-        batch.begin()
 
-      //  glyphLayout.setText(font, typewriter.updateAndType(text, delta))
-      //  font.draw(batch, glyphLayout, (WIDTH - glyphLayout.width) / 2, HEIGHT)
-
-        font.draw(batch,  typewriter.updateAndType(text, delta), textX, textY)
-
-        batch.end()
-//
-//        renderer.renderFBOtoScreen()
 
     }
 
-    override fun resize(width: Int, height: Int) {
-        cam = setupCam(width.toFloat(), height.toFloat())
-    }
+
+
     override fun pause() {
 
     }
