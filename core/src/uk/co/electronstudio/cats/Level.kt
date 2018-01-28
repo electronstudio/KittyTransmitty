@@ -4,7 +4,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.math.MathUtils
 
-abstract class Level(val name:String){
+abstract class Level(val name:String, val timeLimit: Float? = null, val shotLimit: Float? = null){
     abstract fun getMap(): TiledMap
 }
 
