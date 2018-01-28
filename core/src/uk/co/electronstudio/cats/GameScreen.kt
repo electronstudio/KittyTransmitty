@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.*
 import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.maps.tiled.TiledMapTile
@@ -13,7 +14,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
-import kotlin.concurrent.timer
+
 
 class GameScreen(val level: Level) : Screen{
 
@@ -39,10 +40,12 @@ class GameScreen(val level: Level) : Screen{
     enum class GameState{PLAYING, WON, LOST, FIRING}
     var gameState: GameState=GameState.PLAYING
 
-    internal var font = BitmapFont(Gdx.files.internal("big.fnt"))
+    internal var font = BitmapFont(Gdx.files.internal("joy.fnt"))
 
     var laserTime=0f
     var flickerFlag = false
+
+    val bullet = Sprite(Texture("ball_laser.png"))
 
     init {
         batch = SpriteBatch()
@@ -92,6 +95,8 @@ class GameScreen(val level: Level) : Screen{
 
     class Thing(val x: Int, val y: Int)
 
+    var goalHit=false
+
     private fun calculatePath() {
         path.points.clear()
         var xVel = 0
@@ -120,6 +125,7 @@ class GameScreen(val level: Level) : Screen{
             if (cell.tile.properties.containsKey("goal")) {
                 path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
                 gameState=GameState.FIRING
+                goalHit=true
                 break //win
             }
             if (cell.tile.properties.containsKey("obstacle")) {
@@ -166,6 +172,7 @@ class GameScreen(val level: Level) : Screen{
     var shots=0
 
     fun shotMissed(){
+        gameState=GameState.FIRING
         level.shotLimit?.let{
             if(shots>=it){
                 CatGame.app.goBackToTitleScreen()
@@ -192,10 +199,15 @@ class GameScreen(val level: Level) : Screen{
                 doWon()
             }
             GameState.FIRING ->{
+                drawSprites()
                 if(laserTime<=0f){
+                    if(goalHit){
                     gameState=GameState.WON
                     CatGame.app.musicTheme.pause()
-                    CatGame.app.musicWin.play()
+                    CatGame.app.musicWin.play()}
+                    else{
+                        gameState=GameState.PLAYING
+                    }
                 }
             }
 
@@ -203,10 +215,58 @@ class GameScreen(val level: Level) : Screen{
 
     }
 
+    var pathCounter=0
+
+    private fun drawSprites() {
+        // nasty nasty last minute hack
+        bulletLogic()
+        bulletLogic()
+        bulletLogic()
+        bulletLogic()
+        bulletLogic()
+        bulletLogic()
+        bulletLogic()
+        bulletLogic()
+        bulletLogic()
+
+        batch.begin()
+        bullet.x=bullet.x-12
+        bullet.y=bullet.y-12
+        bullet.draw(batch)
+        bullet.x=bullet.x+12  // ARGH NASTY NO TIME LEFT
+        bullet.y=bullet.y+12
+        batch.end()
+    }
+
+    // nasty nasty last minute hack
+    private fun bulletLogic() {
+        val b = bulletTarget
+        if(b!=null) {
+            if (bullet.x < b.x ){
+                bullet.x++
+            }
+            if (bullet.y < b.y ){
+                bullet.y++
+            }
+            if (bullet.x > b.x ){
+                bullet.x--
+            }
+            if (bullet.y > b.y ){
+                bullet.y--
+            }
+            if (bullet.x.toInt()==b.x.toInt() && bullet.y.toInt()==b.y.toInt()){
+                pathCounter++
+                if(pathCounter<=path.points.lastIndex) {
+                    bulletTarget = path.points[pathCounter]
+                }
+            }
+        }
+    }
+
     private fun drawStats() {
         batch.begin()
        level.shotLimit?.let {
-            font.draw(batch, "LASER POWER: ${it-shots}", 0f, 20f)
+            font.draw(batch, "LASER POWER: ${it-shots}", 0f, 50f)
         }
         batch.end()
     }
@@ -279,15 +339,13 @@ class GameScreen(val level: Level) : Screen{
             Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
         }
         if (Gdx.input.justTouched()){
-
             val mouse = cam.unproject(Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f))
             val x = (mouse.x/128).toInt()
             val y = (mouse.y/128).toInt()
             println("pressed at $x $y")
             val cell = layer.getCell(x, y)
-            if(cell!=null) {
+            if(cell!=null) {  // mirror clicked, flip the tile
                 val tile = cell.tile
-              //  println("tile ${tile.id} comparing to ${mirror0.id}")
                 if(tile.id == mirror0.id){
                     cell.setTile(mirror45)
                 }
@@ -301,14 +359,26 @@ class GameScreen(val level: Level) : Screen{
                     cell.setTile(mirror0)
                 }
                 else if(tile.properties.containsKey("fire")){
-                    CatGame.app.soundLaser.play()
-                    laserTime=5f
-                    shots++
-                    calculatePath()
+                    beginFiringLaser()
                 }
             }
 
         }
+    }
+
+    var bulletTarget: Vector2? = null
+
+    private fun beginFiringLaser() {
+        CatGame.app.soundLaser.play()
+        laserTime = 5f
+        shots++
+        bullet.x=origin.x*128f
+        bullet.y=origin.y*128f
+
+        calculatePath()
+        bulletTarget = path.points.first()
+        println("bullet target: $bulletTarget")
+        pathCounter=0
     }
 
     override fun dispose() {
