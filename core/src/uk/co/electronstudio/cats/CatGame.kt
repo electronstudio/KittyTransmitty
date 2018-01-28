@@ -54,7 +54,7 @@ class CatGame : Game() {
         initGame()
 
 
-        Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
+       // Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
         setScreen(splashScreen)
         musicTheme.play()
 
