@@ -40,7 +40,7 @@ class GameScreen(val level: Level) : Screen{
     enum class GameState{PLAYING, WON, LOST, FIRING}
     var gameState: GameState=GameState.PLAYING
 
-    internal var font = BitmapFont(Gdx.files.internal("big.fnt"))
+    internal var font = BitmapFont(Gdx.files.internal("joy.fnt"))
 
     var laserTime=0f
     var flickerFlag = false

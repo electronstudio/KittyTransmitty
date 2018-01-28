@@ -30,7 +30,7 @@ class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: 
 
 
 
-    internal var font = BitmapFont(Gdx.files.internal("big.fnt"))
+    internal var font = BitmapFont(Gdx.files.internal("joy.fnt"))
 
 
     fun end() {

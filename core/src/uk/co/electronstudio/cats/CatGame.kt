@@ -54,7 +54,7 @@ class CatGame : Game() {
         initGame()
 
 
-       // Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
+        Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
         setScreen(splashScreen)
         musicTheme.play()
 
@@ -63,8 +63,8 @@ class CatGame : Game() {
     fun initGame() {
         levels = arrayListOf<Level>(
 
-                SingleLevel("LEVEL 1\n\nCLICK THE LASER", "level1_2.tmx"),
-                RandomLevel("LEVEL 2\n\nCLICK THE MIRRORS", arrayListOf(
+                SingleLevel("LEVEL 1\nCLICK THE LASER", "level1_2.tmx"),
+                RandomLevel("LEVEL 2\nCLICK THE MIRRORS", arrayListOf(
                         "level2_0.tmx",
                         "level2_1.tmx",
                         "level2_2.tmx",
@@ -87,7 +87,13 @@ class CatGame : Game() {
                 )), SingleLevel("LEVEL 4\n\nYOU ONLY HAVE 3 SHOTS!", "level4_1.tmx",shotLimit = 3)
         )
         gameScreen = GameScreen(levels[0])
-        levelScreen = SplashScreen(gameScreen,text = levels[level].name, bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f, textX = 59f, textY=59f, time = 4f)
+        createLevelScreen()
+
+    }
+
+    private fun createLevelScreen() {
+        levelScreen = SplashScreen(gameScreen, text = levels[level].name, logo = Texture("dialogue_clear_box.png"),bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f, textX = 761f, textY = 1080-508f, time = 4f)
+
 
     }
 
@@ -100,7 +106,7 @@ class CatGame : Game() {
            goBackToTitleScreen()
         }else {
             gameScreen = GameScreen(levels[level])
-            levelScreen = SplashScreen(gameScreen, text = levels[level].name, bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f, textX = 59f, textY = 59f, time = 4f)
+            createLevelScreen()
             setScreen(levelScreen)
         }
     }
