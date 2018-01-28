@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
+import kotlin.concurrent.timer
 
 class GameScreen(val level: Level) : Screen{
 
@@ -35,7 +36,7 @@ class GameScreen(val level: Level) : Screen{
 
     val path = Path()
 
-    enum class GameState{PLAYING, WON, LOST}
+    enum class GameState{PLAYING, WON, LOST, FIRING}
     var gameState: GameState=GameState.PLAYING
 
     internal var font = BitmapFont(Gdx.files.internal("big.fnt"))
@@ -47,9 +48,7 @@ class GameScreen(val level: Level) : Screen{
         batch = SpriteBatch()
         background = Texture("template_backdrop_v1.png")
         cam = setupCam(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
-        val pm = Pixmap(Gdx.files.internal("pawprint.png"))
-        //  Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0))
-        pm.dispose()
+
 
         val map = level.getMap()
 
@@ -119,9 +118,7 @@ class GameScreen(val level: Level) : Screen{
             println("cell has properties ${cell.tile.properties}")
             if (cell.tile.properties.containsKey("goal")) {
                 path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
-                gameState=GameState.WON
-                CatGame.app.musicTheme.pause()
-                CatGame.app.musicWin.play()
+                gameState=GameState.FIRING
                 break //win
             }
             if (cell.tile.properties.containsKey("obstacle")) {
@@ -180,6 +177,13 @@ class GameScreen(val level: Level) : Screen{
             GameState.WON ->{
                 doWon()
             }
+            GameState.FIRING ->{
+                if(laserTime<=0f){
+                    gameState=GameState.WON
+                    CatGame.app.musicTheme.pause()
+                    CatGame.app.musicWin.play()
+                }
+            }
 
         }
 
@@ -191,7 +195,8 @@ class GameScreen(val level: Level) : Screen{
             CatGame.app.nextLevel()
         }
         batch.begin()
-        font.draw(batch,"SIGNAL RECEIVED!", 400f, 500f)
+        batch.draw(CatGame.app.dialog1,0f,0f)
+      //  font.draw(batch,"SIGNAL RECEIVED!", 400f, 500f)
         batch.end()
     }
 
