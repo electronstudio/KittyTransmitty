@@ -85,13 +85,14 @@ class CatGame : Game() {
                         "level3_5.tmx",
                         "level3_6.tmx"
                 )),
-                SingleLevel("LEVEL 4\n\nYOU ONLY HAVE 3 SHOTS!", "level4_1.tmx",shotLimit = 3), RandomLevel("LEVEL 5", arrayListOf(
+                SingleLevel("LEVEL 4\n\nYOU ONLY HAVE 3 SHOTS!", "level4_1.tmx",shotLimit = 3),
+                RandomLevel("LEVEL 5", arrayListOf(
                         "level5_1.tmx",
                         "level6_1.tmx",
                         "level7_1.tmx",
                         "level8_1.tmx"
                 )),
-                RandomLevel("LEVEL 5", arrayListOf(
+                RandomLevel("LEVEL 6", arrayListOf(
                         "level10_2.tmx",
                         "level11_1.tmx",
                         "level12_1.tmx",
