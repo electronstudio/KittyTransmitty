@@ -27,8 +27,9 @@ class TitleScreen(val bg: Color = Color.BLACK,  WIDTH: Float,  HEIGHT: Float) : 
 
 
     val buttons = listOf<Button>(Button(Rectangle(235f,1080f-784f,383f,89f),action = { CatGame.app.setScreen(CatGame.app.levelScreen)}),
-          //  Button(Rectangle(235f,1080f-784f,383f,89f),action = { CatGame.app.setScreen(CatGame.app.levelScreen)}),
-            Button(Rectangle(1325f,1080f-784f,383f,89f),action = { Gdx.app.exit()})
+            Button(Rectangle(777f,1080f-784f,383f,89f),action = { CatGame.app.setScreen(CatGame.app.instructions1)}),
+            Button(Rectangle(1325f,1080f-784f,383f,89f),action = { Gdx.app.exit()}),
+            Button(Rectangle(1062f,1080f-887f,383f,89f),action = {CatGame.app.setScreen(CatGame.app.credits)})
 
     )
 

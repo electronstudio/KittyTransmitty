@@ -168,7 +168,7 @@ class GameScreen(val level: Level) : Screen{
     fun shotMissed(){
         level.shotLimit?.let{
             if(shots>=it){
-                Gdx.app.exit()
+                CatGame.app.goBackToTitleScreen()
             }
         }
 
@@ -182,6 +182,7 @@ class GameScreen(val level: Level) : Screen{
         drawBackground()
         drawMapTiles()
         drawLaser()
+        drawStats()
         when(gameState){
             GameState.PLAYING ->{
                 doInput()
@@ -200,6 +201,14 @@ class GameScreen(val level: Level) : Screen{
 
         }
 
+    }
+
+    private fun drawStats() {
+        batch.begin()
+       level.shotLimit?.let {
+            font.draw(batch, "LASER POWER: ${it-shots}", 0f, 20f)
+        }
+        batch.end()
     }
 
     private fun doWon() {

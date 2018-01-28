@@ -20,6 +20,10 @@ class CatGame : Game() {
     lateinit var dialog1: Texture
     lateinit var dialog2: Texture
     lateinit var titleScreen: TitleScreen
+    lateinit var instructions1: SplashScreen
+    lateinit var instructions2: SplashScreen
+    lateinit var credits: SplashScreen
+    lateinit var gameOver: SplashScreen
 
     var level=0
 
@@ -29,8 +33,8 @@ class CatGame : Game() {
         musicTheme= Gdx.audio.newMusic(Gdx.files.internal("mainTheme.mp3"))
         musicWin= Gdx.audio.newMusic(Gdx.files.internal("victory.mp3"))
         musicLose= Gdx.audio.newMusic(Gdx.files.internal("loss.mp3"))
-    //    soundLaser= Gdx.audio.newSound(Gdx.files.internal("loss.mp3"))
-       soundLaser= Gdx.audio.newSound(Gdx.files.internal("laserChargeandFire.wav"))
+      //  soundLaser= Gdx.audio.newSound(Gdx.files.internal("loss.mp3"))
+        soundLaser= Gdx.audio.newSound(Gdx.files.internal("laserChargeandFire.wav"))
         titleScreen = TitleScreen(WIDTH = 1920f, HEIGHT = 1080f)
         dialog1 = Texture("dialogue_1.png")
         dialog2 = Texture("dialogue_2.png")
@@ -39,6 +43,14 @@ class CatGame : Game() {
         val pm = Pixmap(Gdx.files.internal("pawprint.png"))
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, pm.width/2, pm.height/2))
         pm.dispose()
+
+        instructions2 = SplashScreen(titleScreen, logo = Texture("instruction_2.png"),bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f)
+        instructions1 = SplashScreen(instructions2, logo = Texture("instruction_1.png"), bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f)
+        credits = SplashScreen(titleScreen, logo = Texture("Credits.png"), bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f)
+        titleScreen = TitleScreen(WIDTH = 1920f, HEIGHT = 1080f)
+        splashScreen = SplashScreen(titleScreen, Texture("GGJ00_GameCredits_SplashScreen.png"),  bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f, textX = 500f, textY = 500f)
+
+
         initGame()
 
 
@@ -76,8 +88,6 @@ class CatGame : Game() {
         )
         gameScreen = GameScreen(levels[0])
         levelScreen = SplashScreen(gameScreen,text = levels[level].name, bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f, textX = 59f, textY=59f, time = 4f)
-        titleScreen = TitleScreen(WIDTH = 1920f, HEIGHT = 1080f)
-        splashScreen = SplashScreen(titleScreen, Texture("space.jpg"), "KITTY TRANSMITTY", Color.BLACK, 1920f, 1080f, textX = 500f, textY = 500f)
 
     }
 
@@ -87,9 +97,7 @@ class CatGame : Game() {
 
         level++
         if(level>levels.lastIndex){
-            level=0
-            initGame()
-            setScreen(splashScreen)
+           goBackToTitleScreen()
         }else {
             gameScreen = GameScreen(levels[level])
             levelScreen = SplashScreen(gameScreen, text = levels[level].name, bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f, textX = 59f, textY = 59f, time = 4f)
@@ -97,7 +105,13 @@ class CatGame : Game() {
         }
     }
 
-companion object {
+    fun goBackToTitleScreen() {
+        level=0
+        initGame()
+        setScreen(titleScreen)
+    }
+
+    companion object {
     lateinit var app: CatGame
 }
 
