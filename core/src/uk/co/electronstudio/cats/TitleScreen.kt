@@ -10,22 +10,27 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector3
 import net.dermetfan.gdx.Typewriter
 
 
-/**
- * Created by richard on 23/06/2016.
- * A GDX screen, i.e. a render loop, used to show a logo plus text before the game starts
- */
+
 class TitleScreen(val bg: Color = Color.BLACK,  WIDTH: Float,  HEIGHT: Float) : ScreenWithCamera(WIDTH, HEIGHT) {
 
 
 
-    val logo: Texture = Texture("space.jpg")
+    val logo: Texture = Texture("Splash_page.png")
 
 
     internal var font = BitmapFont(Gdx.files.internal("big.fnt"))
 
+
+    val buttons = listOf<Button>(Button(Rectangle(235f,1080f-784f,383f,89f),action = { CatGame.app.setScreen(CatGame.app.levelScreen)}),
+          //  Button(Rectangle(235f,1080f-784f,383f,89f),action = { CatGame.app.setScreen(CatGame.app.levelScreen)}),
+            Button(Rectangle(1325f,1080f-784f,383f,89f),action = { Gdx.app.exit()})
+
+    )
 
 
 
@@ -57,8 +62,9 @@ class TitleScreen(val bg: Color = Color.BLACK,  WIDTH: Float,  HEIGHT: Float) : 
             Gdx.app.exit()
         }
 
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) || Gdx.input.justTouched()){
-            CatGame.app.setScreen(CatGame.app.levelScreen)
+        if(Gdx.input.justTouched()) {
+            val mouse = cam.unproject(Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f))
+            buttons.forEach{it.check(mouse.x, mouse.y)}
         }
 
 
@@ -98,5 +104,7 @@ class TitleScreen(val bg: Color = Color.BLACK,  WIDTH: Float,  HEIGHT: Float) : 
     override fun dispose() {
 
     }
+
+
 
 }
