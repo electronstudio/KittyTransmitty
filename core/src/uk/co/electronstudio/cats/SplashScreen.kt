@@ -27,9 +27,9 @@ class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: 
 
     internal var glyphLayout = GlyphLayout()
 
-    val FONT_ENGLISH = BitmapFont(Gdx.files.internal("big.fnt"))
 
-    internal var font = FONT_ENGLISH
+
+    internal var font = BitmapFont(Gdx.files.internal("big.fnt"))
 
     val  batch = SpriteBatch()
     fun end() {

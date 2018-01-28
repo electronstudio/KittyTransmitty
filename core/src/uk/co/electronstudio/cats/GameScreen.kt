@@ -4,11 +4,11 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.*
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.maps.tiled.TiledMapTile
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
-import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
@@ -35,6 +35,13 @@ class GameScreen(val level: Level) : Screen{
 
     val path = Path()
 
+    enum class GameState{PLAYING, WON, LOST}
+    var gameState: GameState=GameState.PLAYING
+
+    internal var font = BitmapFont(Gdx.files.internal("big.fnt"))
+
+    var laserTime=0f
+    var flickerFlag = false
 
     init {
         batch = SpriteBatch()
@@ -44,7 +51,7 @@ class GameScreen(val level: Level) : Screen{
         //  Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0))
         pm.dispose()
 
-        val map = level.map
+        val map = level.getMap()
 
         mapRenderer = OrthogonalTiledMapRenderer(map, 1f)
         debugRenderer = ShapeRenderer()
@@ -81,7 +88,7 @@ class GameScreen(val level: Level) : Screen{
             }
         }
 
-        calculatePath()
+
     }
 
     class Thing(val x: Int, val y: Int)
@@ -112,7 +119,9 @@ class GameScreen(val level: Level) : Screen{
             println("cell has properties ${cell.tile.properties}")
             if (cell.tile.properties.containsKey("goal")) {
                 path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
-                CatGame.app.nextLevel()
+                gameState=GameState.WON
+                CatGame.app.musicTheme.pause()
+                CatGame.app.musicWin.play()
                 break //win
             }
             if (cell.tile.properties.containsKey("obstacle")) {
@@ -157,26 +166,54 @@ class GameScreen(val level: Level) : Screen{
 
 
     override fun render(delta: Float) {
-        doInput()
         cam.update();
         batch.setProjectionMatrix(cam.combined);
-        Gdx.gl.glClearColor(0f, 0f, 0.5f, 1f)
+        Gdx.gl.glClearColor(0f, 0f, 0.0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         drawBackground()
-        drawSprites()
+        drawMapTiles()
         drawLaser()
+        when(gameState){
+            GameState.PLAYING ->{
+                doInput()
+            }
+            GameState.WON ->{
+                doWon()
+            }
+
+        }
+
     }
 
-    private fun drawLaser() {
-        batch.begin()
-        for (i: Int in 0..path.points.lastIndex - 1) {
-            drawLine(path.points[i], path.points[i + 1], 15, Color.RED, cam.combined)
-            drawLine(path.points[i], path.points[i + 1], 3, Color.WHITE, cam.combined)
+    private fun doWon() {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) || Gdx.input.justTouched()){
+
+            CatGame.app.nextLevel()
         }
+        batch.begin()
+        font.draw(batch,"SIGNAL RECEIVED!", 400f, 500f)
         batch.end()
     }
 
-    private fun drawSprites() {
+    val colours = listOf<Color>(Color.RED, Color.PURPLE, Color.BLUE, Color.CYAN, Color.GREEN, Color.YELLOW)
+    var c=0
+
+    private fun drawLaser() {
+        if(laserTime>0) {
+            batch.begin()
+            for (i: Int in 0..path.points.lastIndex - 1) {
+                drawLine(path.points[i], path.points[i + 1], 15,  colours[c], cam.combined)
+               // drawLine(path.points[i], path.points[i + 1], 3, , cam.combined)
+            }
+            batch.end()
+
+            laserTime -= Gdx.graphics.deltaTime
+            c++
+            if(c>colours.lastIndex) c=0
+        }
+    }
+
+    private fun drawMapTiles() {
         batch.begin()
         mapRenderer.setView(cam)
 
@@ -223,21 +260,26 @@ class GameScreen(val level: Level) : Screen{
             val cell = layer.getCell(x, y)
             if(cell!=null) {
                 val tile = cell.tile
-                println("tile ${tile.id} comparing to ${mirror0.id}")
+              //  println("tile ${tile.id} comparing to ${mirror0.id}")
                 if(tile.id == mirror0.id){
                     cell.setTile(mirror45)
                 }
-                if(tile.id == mirror45.id){
+                else if(tile.id == mirror45.id){
                     cell.setTile(mirror90)
                 }
-                if(tile.id == mirror90.id){
+                else if(tile.id == mirror90.id){
                     cell.setTile(mirror135)
                 }
-                if(tile.id == mirror135.id){
+                else if(tile.id == mirror135.id){
                     cell.setTile(mirror0)
                 }
+                else if(tile.properties.containsKey("fire")){
+                    CatGame.app.soundLaser.play()
+                    laserTime=5f
+                    calculatePath()
+                }
             }
-            calculatePath()
+
         }
     }
 
@@ -281,7 +323,7 @@ class GameScreen(val level: Level) : Screen{
     }
 
     override fun show() {
-
+        //calculatePath()
     }
 
     override fun pause() {
