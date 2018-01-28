@@ -17,9 +17,6 @@ class CatGame : Game() {
     lateinit var musicWin: Music
     lateinit var musicLose: Music
     lateinit var soundLaser: Sound
-    lateinit var dialog1: Texture
-    lateinit var dialog2: Texture
-    lateinit var titleScreen: TitleScreen
 
     var level=0
 
@@ -29,26 +26,11 @@ class CatGame : Game() {
         musicTheme= Gdx.audio.newMusic(Gdx.files.internal("mainTheme.mp3"))
         musicWin= Gdx.audio.newMusic(Gdx.files.internal("victory.mp3"))
         musicLose= Gdx.audio.newMusic(Gdx.files.internal("loss.mp3"))
-    //    soundLaser= Gdx.audio.newSound(Gdx.files.internal("loss.mp3"))
-       soundLaser= Gdx.audio.newSound(Gdx.files.internal("laserSound.wav"))
-        titleScreen = TitleScreen(WIDTH = 1920f, HEIGHT = 1080f)
-        dialog1 = Texture("dialogue_1.png")
-        dialog2 = Texture("dialogue_2.png")
+        soundLaser= Gdx.audio.newSound(Gdx.files.internal("victory.mp3"))
+
         musicTheme.setLooping(true)
 
-        val pm = Pixmap(Gdx.files.internal("pawprint.png"))
-        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, pm.width/2, pm.height/2))
-        pm.dispose()
-        initGame()
 
-
-        Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
-        setScreen(splashScreen)
-        musicTheme.play()
-
-    }
-
-    fun initGame() {
         levels = arrayListOf<Level>(
 
                 SingleLevel("LEVEL 1\n\nCLICK THE LASER", "level1_2.tmx"),
@@ -72,12 +54,21 @@ class CatGame : Game() {
                         "level3_4.tmx",
                         "level3_5.tmx",
                         "level3_6.tmx"
-                )), SingleLevel("LEVEL 4\n\nYOU ONLY HAVE 3 SHOTS!", "level4_1.tmx")
+                )),
+                RandomLevel("LEVEL 4", arrayListOf(
+                        "level58_1.tmx",
+                        "level88_1.tmx"
+                ))
         )
+
         gameScreen = GameScreen(levels[0])
         levelScreen = SplashScreen(gameScreen,text = levels[level].name, bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f, textX = 59f, textY=59f, time = 4f)
-        titleScreen = TitleScreen(WIDTH = 1920f, HEIGHT = 1080f)
-        splashScreen = SplashScreen(titleScreen, Texture("space.jpg"), "KITTY TRANSMITTY", Color.BLACK, 1920f, 1080f, textX = 500f, textY = 500f)
+
+        splashScreen = SplashScreen(levelScreen, Texture("space.jpg"), "KITTY TRANSMITTY", Color.BLACK, 1920f, 1080f)
+
+        Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
+        setScreen(splashScreen)
+        musicTheme.play()
 
     }
 
@@ -87,8 +78,6 @@ class CatGame : Game() {
 
         level++
         if(level>levels.lastIndex){
-            level=0
-            initGame()
             setScreen(splashScreen)
         }else {
             gameScreen = GameScreen(levels[level])
