@@ -62,6 +62,7 @@ class CatGame : Game() {
 
         splashScreen = SplashScreen(levelScreen, Texture("space.jpg"), "KITTY TRANSMITTY", Color.BLACK, 1920f, 1080f)
 
+        Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
         setScreen(splashScreen)
         musicTheme.play()
 
