@@ -13,6 +13,7 @@
  </tile>
  <tile id="25">
   <properties>
+   <property name="fire" type="bool" value="true"/>
    <property name="origin" type="bool" value="true"/>
   </properties>
  </tile>
@@ -44,6 +45,11 @@
  <tile id="38">
   <properties>
    <property name="obstacle" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="40">
+  <properties>
+   <property name="fire" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="48">

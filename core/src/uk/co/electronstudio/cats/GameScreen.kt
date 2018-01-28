@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.maps.tiled.TiledMapTile
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
-import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
@@ -52,7 +51,7 @@ class GameScreen(val level: Level) : Screen{
         //  Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, 0))
         pm.dispose()
 
-        val map = level.map
+        val map = level.getMap()
 
         mapRenderer = OrthogonalTiledMapRenderer(map, 1f)
         debugRenderer = ShapeRenderer()
@@ -89,7 +88,7 @@ class GameScreen(val level: Level) : Screen{
             }
         }
 
-        calculatePath()
+
     }
 
     class Thing(val x: Int, val y: Int)
@@ -121,6 +120,8 @@ class GameScreen(val level: Level) : Screen{
             if (cell.tile.properties.containsKey("goal")) {
                 path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
                 gameState=GameState.WON
+                CatGame.app.musicTheme.pause()
+                CatGame.app.musicWin.play()
                 break //win
             }
             if (cell.tile.properties.containsKey("obstacle")) {
@@ -170,7 +171,7 @@ class GameScreen(val level: Level) : Screen{
         Gdx.gl.glClearColor(0f, 0f, 0.0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         drawBackground()
-        drawSprites()
+        drawMapTiles()
         drawLaser()
         when(gameState){
             GameState.PLAYING ->{
@@ -186,6 +187,7 @@ class GameScreen(val level: Level) : Screen{
 
     private fun doWon() {
         if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) || Gdx.input.justTouched()){
+
             CatGame.app.nextLevel()
         }
         batch.begin()
@@ -193,17 +195,25 @@ class GameScreen(val level: Level) : Screen{
         batch.end()
     }
 
+    val colours = listOf<Color>(Color.RED, Color.PURPLE, Color.BLUE, Color.CYAN, Color.GREEN, Color.YELLOW)
+    var c=0
+
     private fun drawLaser() {
-        batch.begin()
-        for (i: Int in 0..path.points.lastIndex - 1) {
-            drawLine(path.points[i], path.points[i + 1], 15, if(flickerFlag) Color.FOREST else Color.FOREST, cam.combined)
-            drawLine(path.points[i], path.points[i + 1], 3, if(!flickerFlag) Color.FOREST else Color.WHITE, cam.combined)
+        if(laserTime>0) {
+            batch.begin()
+            for (i: Int in 0..path.points.lastIndex - 1) {
+                drawLine(path.points[i], path.points[i + 1], 15,  colours[c], cam.combined)
+               // drawLine(path.points[i], path.points[i + 1], 3, , cam.combined)
+            }
+            batch.end()
+
+            laserTime -= Gdx.graphics.deltaTime
+            c++
+            if(c>colours.lastIndex) c=0
         }
-        batch.end()
-        flickerFlag=!flickerFlag
     }
 
-    private fun drawSprites() {
+    private fun drawMapTiles() {
         batch.begin()
         mapRenderer.setView(cam)
 
@@ -250,21 +260,26 @@ class GameScreen(val level: Level) : Screen{
             val cell = layer.getCell(x, y)
             if(cell!=null) {
                 val tile = cell.tile
-                println("tile ${tile.id} comparing to ${mirror0.id}")
+              //  println("tile ${tile.id} comparing to ${mirror0.id}")
                 if(tile.id == mirror0.id){
                     cell.setTile(mirror45)
                 }
-                if(tile.id == mirror45.id){
+                else if(tile.id == mirror45.id){
                     cell.setTile(mirror90)
                 }
-                if(tile.id == mirror90.id){
+                else if(tile.id == mirror90.id){
                     cell.setTile(mirror135)
                 }
-                if(tile.id == mirror135.id){
+                else if(tile.id == mirror135.id){
                     cell.setTile(mirror0)
                 }
+                else if(tile.properties.containsKey("fire")){
+                    CatGame.app.soundLaser.play()
+                    laserTime=5f
+                    calculatePath()
+                }
             }
-            calculatePath()
+
         }
     }
 
@@ -308,7 +323,7 @@ class GameScreen(val level: Level) : Screen{
     }
 
     override fun show() {
-
+        //calculatePath()
     }
 
     override fun pause() {
