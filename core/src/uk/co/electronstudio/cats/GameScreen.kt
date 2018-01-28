@@ -108,6 +108,7 @@ class GameScreen(val level: Level) : Screen{
             if (x > layer.width || x < 0 || y > layer.height || y < 0) {
                 path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
                 println(" breaking width ${layer.width} height ${layer.height}")
+                shotMissed()
                 break
             }
             val cell = layer.getCell(x, y)
@@ -123,6 +124,7 @@ class GameScreen(val level: Level) : Screen{
             }
             if (cell.tile.properties.containsKey("obstacle")) {
                 path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
+                shotMissed()
                 break
             }
             if (cell.tile.properties.containsKey("mirror")) {
@@ -161,6 +163,16 @@ class GameScreen(val level: Level) : Screen{
         }
     }
 
+    var shots=0
+
+    fun shotMissed(){
+        level.shotLimit?.let{
+            if(shots>=it){
+                Gdx.app.exit()
+            }
+        }
+
+    }
 
     override fun render(delta: Float) {
         cam.update();
@@ -173,6 +185,7 @@ class GameScreen(val level: Level) : Screen{
         when(gameState){
             GameState.PLAYING ->{
                 doInput()
+
             }
             GameState.WON ->{
                 doWon()
@@ -281,6 +294,7 @@ class GameScreen(val level: Level) : Screen{
                 else if(tile.properties.containsKey("fire")){
                     CatGame.app.soundLaser.play()
                     laserTime=5f
+                    shots++
                     calculatePath()
                 }
             }

@@ -30,7 +30,7 @@ class CatGame : Game() {
         musicWin= Gdx.audio.newMusic(Gdx.files.internal("victory.mp3"))
         musicLose= Gdx.audio.newMusic(Gdx.files.internal("loss.mp3"))
     //    soundLaser= Gdx.audio.newSound(Gdx.files.internal("loss.mp3"))
-       soundLaser= Gdx.audio.newSound(Gdx.files.internal("laserSound.wav"))
+       soundLaser= Gdx.audio.newSound(Gdx.files.internal("laserChargeandFire.wav"))
         titleScreen = TitleScreen(WIDTH = 1920f, HEIGHT = 1080f)
         dialog1 = Texture("dialogue_1.png")
         dialog2 = Texture("dialogue_2.png")
@@ -72,7 +72,7 @@ class CatGame : Game() {
                         "level3_4.tmx",
                         "level3_5.tmx",
                         "level3_6.tmx"
-                )), SingleLevel("LEVEL 4\n\nYOU ONLY HAVE 3 SHOTS!", "level4_1.tmx")
+                )), SingleLevel("LEVEL 4\n\nYOU ONLY HAVE 3 SHOTS!", "level4_1.tmx",shotLimit = 3)
         )
         gameScreen = GameScreen(levels[0])
         levelScreen = SplashScreen(gameScreen,text = levels[level].name, bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f, textX = 59f, textY=59f, time = 4f)
