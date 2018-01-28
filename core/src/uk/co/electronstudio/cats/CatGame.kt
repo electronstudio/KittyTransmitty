@@ -84,7 +84,21 @@ class CatGame : Game() {
                         "level3_4.tmx",
                         "level3_5.tmx",
                         "level3_6.tmx"
-                )), SingleLevel("LEVEL 4\n\nYOU ONLY HAVE 3 SHOTS!", "level4_1.tmx",shotLimit = 3)
+                )),
+                SingleLevel("LEVEL 4\n\nYOU ONLY HAVE 3 SHOTS!", "level4_1.tmx",shotLimit = 3), RandomLevel("LEVEL 5", arrayListOf(
+                        "level5_1.tmx",
+                        "level6_1.tmx",
+                        "level7_1.tmx",
+                        "level8_1.tmx"
+                )),
+                RandomLevel("LEVEL 5", arrayListOf(
+                        "level10_2.tmx",
+                        "level11_1.tmx",
+                        "level12_1.tmx",
+                        "level13_1.tmx",
+                        "level58_1.tmx"
+                )),
+                SingleLevel("FINAL LEVEL", "level88_1.tmx",shotLimit = 3)
         )
         gameScreen = GameScreen(levels[0])
         levelScreen = SplashScreen(gameScreen,text = levels[level].name, bg = Color.BLACK, WIDTH = 1920f, HEIGHT = 1080f, textX = 59f, textY=59f, time = 4f)
