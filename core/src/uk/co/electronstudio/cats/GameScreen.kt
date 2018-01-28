@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.*
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.maps.tiled.TiledMapTile
@@ -35,6 +36,13 @@ class GameScreen(val level: Level) : Screen{
 
     val path = Path()
 
+    enum class GameState{PLAYING, WON, LOST}
+    var gameState: GameState=GameState.PLAYING
+
+    internal var font = BitmapFont(Gdx.files.internal("big.fnt"))
+
+    var laserTime=0f
+    var flickerFlag = false
 
     init {
         batch = SpriteBatch()
@@ -112,7 +120,7 @@ class GameScreen(val level: Level) : Screen{
             println("cell has properties ${cell.tile.properties}")
             if (cell.tile.properties.containsKey("goal")) {
                 path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
-                CatGame.app.nextLevel()
+                gameState=GameState.WON
                 break //win
             }
             if (cell.tile.properties.containsKey("obstacle")) {
@@ -157,23 +165,42 @@ class GameScreen(val level: Level) : Screen{
 
 
     override fun render(delta: Float) {
-        doInput()
         cam.update();
         batch.setProjectionMatrix(cam.combined);
-        Gdx.gl.glClearColor(0f, 0f, 0.5f, 1f)
+        Gdx.gl.glClearColor(0f, 0f, 0.0f, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         drawBackground()
         drawSprites()
         drawLaser()
+        when(gameState){
+            GameState.PLAYING ->{
+                doInput()
+            }
+            GameState.WON ->{
+                doWon()
+            }
+
+        }
+
+    }
+
+    private fun doWon() {
+        if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) || Gdx.input.justTouched()){
+            CatGame.app.nextLevel()
+        }
+        batch.begin()
+        font.draw(batch,"SIGNAL RECEIVED!", 400f, 500f)
+        batch.end()
     }
 
     private fun drawLaser() {
         batch.begin()
         for (i: Int in 0..path.points.lastIndex - 1) {
-            drawLine(path.points[i], path.points[i + 1], 15, Color.RED, cam.combined)
-            drawLine(path.points[i], path.points[i + 1], 3, Color.WHITE, cam.combined)
+            drawLine(path.points[i], path.points[i + 1], 15, if(flickerFlag) Color.FOREST else Color.FOREST, cam.combined)
+            drawLine(path.points[i], path.points[i + 1], 3, if(!flickerFlag) Color.FOREST else Color.WHITE, cam.combined)
         }
         batch.end()
+        flickerFlag=!flickerFlag
     }
 
     private fun drawSprites() {
