@@ -19,7 +19,7 @@ import net.dermetfan.gdx.Typewriter
  * A GDX screen, i.e. a render loop, used to show a logo plus text before the game starts
  */
 class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: String? = null,
-                   val bg: Color = Color.BLACK,  WIDTH: Float,  HEIGHT: Float,
+                   val bg: Color = Color.BLACK,  WIDTH: Float = 1920f,  HEIGHT: Float = 1080f,
                     val time:Float = 7.4f, val textX:Float=100f, val textY:Float=100f) : ScreenWithCamera(WIDTH, HEIGHT) {
 
 
@@ -30,37 +30,22 @@ class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: 
 
 
 
-    internal var font = BitmapFont(Gdx.files.internal("joy.fnt"))
-
 
     fun end() {
         CatGame.app.setScreen(nextScreen)
     }
 
     init {
-
         typewriter.charsPerSecond = 20f
         typewriter.isCursorWhileTyping = true
         typewriter.isCursorAfterTyping = true
-
-        logo?.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest)
-
-
-        font.region.texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest)
-
-
-        cam = setupCam(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
-
-
+        logo?.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
     }
 
 
 
     override fun show() {
         timer = 0f
-
-      //  App.playTitleMusic()
-
     }
 
     var timer: Float = 0f
@@ -83,8 +68,6 @@ class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: 
         cam.update();
         batch.setProjectionMatrix(cam.combined);
 
-//        val batch = renderer.beginFBO()
-//
         Gdx.gl.glClearColor(bg.r, bg.g, bg.b, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
@@ -104,18 +87,13 @@ class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: 
       //  glyphLayout.setText(font, typewriter.updateAndType(text, delta))
       //  font.draw(batch, glyphLayout, (WIDTH - glyphLayout.width) / 2, HEIGHT)
         if(text!=null) {
-            font.draw(batch, typewriter.updateAndType(text, delta), textX, textY)
+            CatGame.resources.font.draw(batch, typewriter.updateAndType(text, delta), textX, textY)
 
         }
         batch.end()
-//
-//        renderer.renderFBOtoScreen()
 
     }
 
-    override fun resize(width: Int, height: Int) {
-        cam = setupCam(width.toFloat(), height.toFloat())
-    }
     override fun pause() {
 
     }

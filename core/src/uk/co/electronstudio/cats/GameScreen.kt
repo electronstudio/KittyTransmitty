@@ -4,8 +4,6 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.*
-import com.badlogic.gdx.graphics.g2d.BitmapFont
-import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.maps.tiled.TiledMapTile
@@ -16,68 +14,64 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 
 
-class GameScreen(val level: Level) : Screen{
+/**
+ * Screen the game is played on.
+ * One is created for each level
+ */
+class GameScreen(val level: Level) : ScreenWithCamera(1920f, 1080f) {
 
+    val mapRenderer = OrthogonalTiledMapRenderer(level.getMap(), 1f)
+    val laserRenderer = ShapeRenderer()
 
-
-    lateinit var batch: SpriteBatch
-    lateinit var background: Texture
-    lateinit var cam: OrthographicCamera
-    lateinit var mapRenderer: OrthogonalTiledMapRenderer
-    lateinit var debugRenderer: ShapeRenderer
-    lateinit var origin: Thing
-    lateinit var goal: Thing
-    lateinit var layer: TiledMapTileLayer
+    val layer = level.getMap().layers.last() as TiledMapTileLayer
 
 
     lateinit var mirror0: TiledMapTile
     lateinit var mirror45: TiledMapTile
     lateinit var mirror90: TiledMapTile
     lateinit var mirror135: TiledMapTile
+    lateinit var origin: Vec
+    lateinit var goal: Vec
 
-    val path = Path()
+    val path = ArrayList<Vector2>()
 
-    enum class GameState{PLAYING, WON, LOST, FIRING}
-    var gameState: GameState=GameState.PLAYING
+    enum class GameState { PLAYING, WON, LOST, FIRING }
 
-    internal var font = BitmapFont(Gdx.files.internal("joy.fnt"))
+    var gameState: GameState = GameState.PLAYING
 
-    var laserTime=0f
-    var flickerFlag = false
+    var laserTime = 0f
 
-    val bullet = Sprite(Texture("ball_laser.png"))
+    var bx = 0
+    var by = 0
+
 
     init {
-        batch = SpriteBatch()
-        background = Texture("template_backdrop_v1.png")
-        cam = setupCam(Gdx.graphics.width.toFloat(), Gdx.graphics.height.toFloat())
 
 
         val map = level.getMap()
 
-        mapRenderer = OrthogonalTiledMapRenderer(map, 1f)
-        debugRenderer = ShapeRenderer()
 
 
-        layer = map.layers.last() as TiledMapTileLayer
+
+
+
         for (x: Int in 0..layer.width - 1) {
             for (y: Int in 0..layer.height - 1) {
                 val cell = layer.getCell(x, y)
-                //    println("$x $y")
                 if (cell != null) {
                     if (cell.tile.properties.containsKey("origin")) {
-                        origin = Thing(x, y)
+                        origin = Vec(x, y)
                     }
                     if (cell.tile.properties.containsKey("goal")) {
-                        goal = Thing(x, y)
+                        goal = Vec(x, y)
                     }
                 }
             }
         }
-        println("origin $origin")
 
-        for(tileset in map.tileSets) {
+        for (tileset in map.tileSets) {
             for (tile: TiledMapTile in tileset) {
+                tile.getTextureRegion().getTexture().setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear);
                 if (tile.properties["mirror"] != null) {
                     val angle = tile.properties["mirror"] as Int
                     when (angle) {
@@ -93,17 +87,17 @@ class GameScreen(val level: Level) : Screen{
 
     }
 
-    class Thing(val x: Int, val y: Int)
+    class Vec(val x: Int, val y: Int)
 
-    var goalHit=false
+    var goalHit = false
 
     private fun calculatePath() {
-        path.points.clear()
+        path.clear()
         var xVel = 0
         var yVel = 1
         var x = origin.x
         var y = origin.y
-        path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
+        path.add(Vector2(x * 128f + 64f, y * 128f + 64f))
         while (true) {
             x += xVel
             y += yVel
@@ -111,7 +105,7 @@ class GameScreen(val level: Level) : Screen{
             println("checking cell $x $y")
 
             if (x > layer.width || x < 0 || y > layer.height || y < 0) {
-                path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
+                path.add(Vector2(x * 128f + 64f, y * 128f + 64f))
                 println(" breaking width ${layer.width} height ${layer.height}")
                 shotMissed()
                 break
@@ -123,13 +117,13 @@ class GameScreen(val level: Level) : Screen{
             }
             println("cell has properties ${cell.tile.properties}")
             if (cell.tile.properties.containsKey("goal")) {
-                path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
-                gameState=GameState.FIRING
-                goalHit=true
+                path.add(Vector2(x * 128f + 64f, y * 128f + 64f))
+                gameState = GameState.FIRING
+                goalHit = true
                 break //win
             }
             if (cell.tile.properties.containsKey("obstacle")) {
-                path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
+                path.add(Vector2(x * 128f + 64f, y * 128f + 64f))
                 shotMissed()
                 break
             }
@@ -162,19 +156,19 @@ class GameScreen(val level: Level) : Screen{
 
 
                 }
-                path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
+                path.add(Vector2(x * 128f + 64f, y * 128f + 64f))
             }
-            path.points.add(Vector2(x * 128f + 64f, y * 128f + 64f))
+            path.add(Vector2(x * 128f + 64f, y * 128f + 64f))
 
         }
     }
 
-    var shots=0
+    var shots = 0
 
-    fun shotMissed(){
-        gameState=GameState.FIRING
-        level.shotLimit?.let{
-            if(shots>=it){
+    fun shotMissed() {
+        gameState = GameState.FIRING
+        level.shotLimit?.let {
+            if (shots >= it) {
                 CatGame.app.goBackToTitleScreen()
             }
         }
@@ -190,23 +184,23 @@ class GameScreen(val level: Level) : Screen{
         drawMapTiles()
         drawLaser()
         drawStats()
-        when(gameState){
-            GameState.PLAYING ->{
+        when (gameState) {
+            GameState.PLAYING -> {
                 doInput()
 
             }
-            GameState.WON ->{
+            GameState.WON -> {
                 doWon()
             }
-            GameState.FIRING ->{
-                drawSprites()
-                if(laserTime<=0f){
-                    if(goalHit){
-                    gameState=GameState.WON
-                    CatGame.app.musicTheme.pause()
-                    CatGame.app.musicWin.play()}
-                    else{
-                        gameState=GameState.PLAYING
+            GameState.FIRING -> {
+                updateAndDrawBullet()
+                if (laserTime <= 0f) {
+                    if (goalHit) {
+                        gameState = GameState.WON
+                        CatGame.resources.musicTheme.pause()
+                        CatGame.resources.musicWin.play()
+                    } else {
+                        gameState = GameState.PLAYING
                     }
                 }
             }
@@ -215,49 +209,39 @@ class GameScreen(val level: Level) : Screen{
 
     }
 
-    var pathCounter=0
+    var pathCounter = 0
 
-    private fun drawSprites() {
-        // nasty nasty last minute hack
-        bulletLogic()
-        bulletLogic()
-        bulletLogic()
-        bulletLogic()
-        bulletLogic()
-        bulletLogic()
-        bulletLogic()
-        bulletLogic()
-        bulletLogic()
+    private fun updateAndDrawBullet() {
+
+        for (i in 0..10) {
+            bulletLogic()
+        }
 
         batch.begin()
-        bullet.x=bullet.x-12
-        bullet.y=bullet.y-12
-        bullet.draw(batch)
-        bullet.x=bullet.x+12  // ARGH NASTY NO TIME LEFT
-        bullet.y=bullet.y+12
+        batch.draw(CatGame.resources.bullet, (bx - 12).toFloat(), (by - 12).toFloat())
         batch.end()
     }
 
-    // nasty nasty last minute hack
+
     private fun bulletLogic() {
-        val b = bulletTarget
-        if(b!=null) {
-            if (bullet.x < b.x ){
-                bullet.x++
+        val target = bulletTarget
+        if (target != null) {
+            if (bx < target.x) {
+                bx++
             }
-            if (bullet.y < b.y ){
-                bullet.y++
+            if (by < target.y) {
+                by++
             }
-            if (bullet.x > b.x ){
-                bullet.x--
+            if (bx > target.x) {
+                bx--
             }
-            if (bullet.y > b.y ){
-                bullet.y--
+            if (by > target.y) {
+                by--
             }
-            if (bullet.x.toInt()==b.x.toInt() && bullet.y.toInt()==b.y.toInt()){
+            if (bx == target.x.toInt() && by == target.y.toInt()) {
                 pathCounter++
-                if(pathCounter<=path.points.lastIndex) {
-                    bulletTarget = path.points[pathCounter]
+                if (pathCounter <= path.lastIndex) {
+                    bulletTarget = path[pathCounter]
                 }
             }
         }
@@ -265,66 +249,61 @@ class GameScreen(val level: Level) : Screen{
 
     private fun drawStats() {
         batch.begin()
-       level.shotLimit?.let {
-            font.draw(batch, "LASER POWER: ${it-shots}", 0f, 50f)
+        level.shotLimit?.let {
+            CatGame.resources.font.draw(batch, "LASER POWER: ${it - shots}", 0f, 50f)
         }
         batch.end()
     }
 
     private fun doWon() {
-        if(Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) || Gdx.input.justTouched()){
-
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ANY_KEY) ||
+                Gdx.input.justTouched()) {
             CatGame.app.nextLevel()
         }
         batch.begin()
-        batch.draw(CatGame.app.dialog1,0f,0f)
-      //  font.draw(batch,"SIGNAL RECEIVED!", 400f, 500f)
+        batch.draw(CatGame.resources.dialogSignalReceived, 0f, 0f)
         batch.end()
     }
 
     val colours = listOf<Color>(Color.RED, Color.PURPLE, Color.BLUE, Color.CYAN, Color.GREEN, Color.YELLOW)
-    var c=0
+    var c = 0
 
     private fun drawLaser() {
-        if(laserTime>0) {
+        if (laserTime > 0) {
             batch.begin()
-            for (i: Int in 0..path.points.lastIndex - 1) {
-                drawLine(path.points[i], path.points[i + 1], 15,  colours[c], cam.combined)
-               // drawLine(path.points[i], path.points[i + 1], 3, , cam.combined)
+            for (i: Int in 0..path.lastIndex - 1) {
+                drawLine(path[i], path[i + 1], 15, colours[c], cam.combined)
+                // drawLine(path.points[i], path.points[i + 1], 3, , cam.combined)
             }
             batch.end()
 
             laserTime -= Gdx.graphics.deltaTime
             c++
-            if(c>colours.lastIndex) c=0
+            if (c > colours.lastIndex) c = 0
         }
     }
 
     private fun drawMapTiles() {
         batch.begin()
         mapRenderer.setView(cam)
-
-
         mapRenderer.render()
         batch.end()
-
-
     }
 
 
     fun drawLine(start: Vector2, end: Vector2, lineWidth: Int, color: Color, projectionMatrix: Matrix4) {
         Gdx.gl.glLineWidth(lineWidth.toFloat())
-        debugRenderer.setProjectionMatrix(projectionMatrix)
-        debugRenderer.begin(ShapeRenderer.ShapeType.Line)
-        debugRenderer.setColor(color)
-        debugRenderer.line(start, end)
-        debugRenderer.end()
+        laserRenderer.setProjectionMatrix(projectionMatrix)
+        laserRenderer.begin(ShapeRenderer.ShapeType.Line)
+        laserRenderer.setColor(color)
+        laserRenderer.line(start, end)
+        laserRenderer.end()
         Gdx.gl.glLineWidth(1f)
     }
 
     private fun drawBackground() {
         batch.begin()
-        batch.draw(background, 0f, 0f)
+        batch.draw(CatGame.resources.background, 0f, 0f)
         batch.end()
     }
 
@@ -336,29 +315,31 @@ class GameScreen(val level: Level) : Screen{
             CatGame.app.nextLevel()
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.F)) {
-            Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
+            if (Gdx.graphics.isFullscreen) {
+                Gdx.graphics.setWindowedMode(1200, 800)
+                Gdx.graphics.setVSync(true)
+            } else {
+                Gdx.graphics.setFullscreenMode(Gdx.graphics.displayMode)
+                Gdx.graphics.setVSync(true)
+            }
         }
-        if (Gdx.input.justTouched()){
+        if (Gdx.input.justTouched()) {
             val mouse = cam.unproject(Vector3(Gdx.input.x.toFloat(), Gdx.input.y.toFloat(), 0f))
-            val x = (mouse.x/128).toInt()
-            val y = (mouse.y/128).toInt()
+            val x = (mouse.x / 128).toInt()
+            val y = (mouse.y / 128).toInt()
             println("pressed at $x $y")
             val cell = layer.getCell(x, y)
-            if(cell!=null) {  // mirror clicked, flip the tile
+            if (cell != null) {  // mirror clicked, flip the tile
                 val tile = cell.tile
-                if(tile.id == mirror0.id){
+                if (tile.id == mirror0.id) {
                     cell.setTile(mirror45)
-                }
-                else if(tile.id == mirror45.id){
+                } else if (tile.id == mirror45.id) {
                     cell.setTile(mirror90)
-                }
-                else if(tile.id == mirror90.id){
+                } else if (tile.id == mirror90.id) {
                     cell.setTile(mirror135)
-                }
-                else if(tile.id == mirror135.id){
+                } else if (tile.id == mirror135.id) {
                     cell.setTile(mirror0)
-                }
-                else if(tile.properties.containsKey("fire")){
+                } else if (tile.properties.containsKey("fire")) {
                     beginFiringLaser()
                 }
             }
@@ -369,51 +350,20 @@ class GameScreen(val level: Level) : Screen{
     var bulletTarget: Vector2? = null
 
     private fun beginFiringLaser() {
-        CatGame.app.soundLaser.play()
+        CatGame.resources.soundLaser.play()
         laserTime = 5f
         shots++
-        bullet.x=origin.x*128f
-        bullet.y=origin.y*128f
+        bx = origin.x * 128
+        by = origin.y * 128
 
         calculatePath()
-        bulletTarget = path.points.first()
+        bulletTarget = path.first()
         println("bullet target: $bulletTarget")
-        pathCounter=0
+        pathCounter = 0
     }
 
     override fun dispose() {
         batch.dispose()
-        background.dispose()
-    }
-
-    val WIDTH = 1920f
-    val HEIGHT = 1080f
-
-    fun setupCam(w: Float, h: Float): OrthographicCamera {
-
-        val m: Float = findHighestScaleFactor(w, h)
-
-
-        val cam = OrthographicCamera(w / m, h / m)
-
-        cam.translate((WIDTH / 2), (HEIGHT / 2))
-
-        cam.update()
-
-        return cam
-
-    }
-
-    override fun resize(width: Int, height: Int) {
-        cam = setupCam(width.toFloat(), height.toFloat())
-    }
-
-    fun findHighestScaleFactor(width: Float, height: Float): Float {
-
-        val w = width / WIDTH
-        val h = height / HEIGHT
-
-        return if (w < h) w else h
     }
 
 
@@ -421,16 +371,15 @@ class GameScreen(val level: Level) : Screen{
     }
 
     override fun show() {
-        //calculatePath()
     }
 
     override fun pause() {
-
     }
 
     override fun resume() {
 
     }
+
     fun Float.roundDown(): Float {
         return this.toInt().toFloat()
     }

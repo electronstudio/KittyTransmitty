@@ -16,7 +16,7 @@ import net.dermetfan.gdx.Typewriter
 
 
 
-class TitleScreen(val bg: Color = Color.BLACK,  WIDTH: Float,  HEIGHT: Float) : ScreenWithCamera(WIDTH, HEIGHT) {
+class TitleScreen(val bg: Color = Color.BLACK,  WIDTH: Float = 1920f,  HEIGHT: Float = 1080f) : ScreenWithCamera(WIDTH, HEIGHT) {
 
 
 
@@ -27,32 +27,21 @@ class TitleScreen(val bg: Color = Color.BLACK,  WIDTH: Float,  HEIGHT: Float) : 
 
 
     val buttons = listOf<Button>(Button(Rectangle(235f,1080f-784f,383f,89f),action = { CatGame.app.setScreen(CatGame.app.levelScreen)}),
-            Button(Rectangle(777f,1080f-784f,383f,89f),action = { CatGame.app.setScreen(CatGame.app.instructions1)}),
+            Button(Rectangle(777f,1080f-784f,383f,89f),action = { CatGame.app.setScreen(CatGame.resources.instructions1)}),
             Button(Rectangle(1325f,1080f-784f,383f,89f),action = { Gdx.app.exit()}),
-            Button(Rectangle(1062f,1080f-887f,383f,89f),action = {CatGame.app.setScreen(CatGame.app.credits)})
+            Button(Rectangle(1062f,1080f-887f,383f,89f),action = {CatGame.app.setScreen(CatGame.resources.credits)})
 
     )
 
 
 
     init {
-
-
-
-        logo?.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest)
-
-
-        font.region.texture.setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest)
-
-
-
+        logo.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
+        font.region.texture.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
     }
 
     override fun show() {
-
-
       //  App.playTitleMusic()
-
     }
 
 
@@ -69,18 +58,11 @@ class TitleScreen(val bg: Color = Color.BLACK,  WIDTH: Float,  HEIGHT: Float) : 
         }
 
 
-
-//        val batch = renderer.beginFBO()
-//
         Gdx.gl.glClearColor(bg.r, bg.g, bg.b, 1f)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
 
         batch.begin()
-
-        if(logo!=null) {
-            batch.draw(logo, ((WIDTH - logo.width) / 2), ((HEIGHT - logo.height) / 2))
-        }
-
+        batch.draw(logo, ((WIDTH - logo.width) / 2), ((HEIGHT - logo.height) / 2))
         batch.end()
 
 
