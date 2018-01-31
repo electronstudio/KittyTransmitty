@@ -29,7 +29,8 @@ class TitleScreen(val bg: Color = Color.BLACK,  WIDTH: Float = 1920f,  HEIGHT: F
     val buttons = listOf<Button>(Button(Rectangle(235f,1080f-784f,383f,89f),action = { CatGame.app.setScreen(CatGame.app.levelScreen)}),
             Button(Rectangle(777f,1080f-784f,383f,89f),action = { CatGame.app.setScreen(CatGame.resources.instructions1)}),
             Button(Rectangle(1325f,1080f-784f,383f,89f),action = { Gdx.app.exit()}),
-            Button(Rectangle(1062f,1080f-887f,383f,89f),action = {CatGame.app.setScreen(CatGame.resources.credits)})
+            Button(Rectangle(1062f,1080f-887f,383f,89f),action = {CatGame.app.setScreen(CatGame.resources.credits)}),
+            Button(Rectangle(570f,1080f-887f,383f,89f),action = {soundToggle()})
 
     )
 
@@ -44,6 +45,13 @@ class TitleScreen(val bg: Color = Color.BLACK,  WIDTH: Float = 1920f,  HEIGHT: F
       //  App.playTitleMusic()
     }
 
+    fun soundToggle(){
+        if(CatGame.resources.musicTheme.volume<0.1f){
+            CatGame.resources.musicTheme.volume = 1f
+        }else {
+            CatGame.resources.musicTheme.volume = 0f
+        }
+    }
 
 
     override fun render(delta: Float) {

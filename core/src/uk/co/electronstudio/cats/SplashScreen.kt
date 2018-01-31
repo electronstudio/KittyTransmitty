@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.utils.Align
 import net.dermetfan.gdx.Typewriter
 
 
@@ -38,7 +39,7 @@ class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: 
     init {
         typewriter.charsPerSecond = 20f
         typewriter.isCursorWhileTyping = true
-        typewriter.isCursorAfterTyping = true
+        typewriter.isCursorAfterTyping = false
         logo?.setFilter(Texture.TextureFilter.Linear, Texture.TextureFilter.Linear)
     }
 
@@ -87,7 +88,10 @@ class SplashScreen(val nextScreen: Screen, val logo: Texture? = null, val text: 
       //  glyphLayout.setText(font, typewriter.updateAndType(text, delta))
       //  font.draw(batch, glyphLayout, (WIDTH - glyphLayout.width) / 2, HEIGHT)
         if(text!=null) {
-            CatGame.resources.font.draw(batch, typewriter.updateAndType(text, delta), textX, textY)
+            val t = typewriter.updateAndType(text, delta)
+            glyphLayout.setText(CatGame.resources.font, t, Color.YELLOW, 1243f-670f, Align.center, true)
+            CatGame.resources.font.draw(batch, glyphLayout,680f,1080f-417f)
+          //  CatGame.resources.font.draw(batch, t, textX, textY)
 
         }
         batch.end()

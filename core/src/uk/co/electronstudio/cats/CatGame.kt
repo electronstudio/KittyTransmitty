@@ -24,7 +24,7 @@ class CatGame : Game() {
         setMousePointer()
         initGame()
         setDisplay()
-        resources.musicTheme.volume = 0f
+
 
     }
 
@@ -43,8 +43,8 @@ class CatGame : Game() {
 
     fun initGame() {
         levels = arrayListOf<Level>(
-                SingleLevel("LEVEL 1\nCLICK THE LASER", "level1_2.tmx"),
-                RandomLevel("LEVEL 2\nCLICK THE MIRRORS", arrayListOf(
+                SingleLevel("\nLEVEL 1\n\nCLICK THE LASER", "level1_2.tmx"),
+                RandomLevel("\nLEVEL 2\nCLICK THE\nMIRRORS", arrayListOf(
                         "level2_0.tmx",
                         "level2_1.tmx",
                         "level2_2.tmx",
@@ -56,7 +56,7 @@ class CatGame : Game() {
                         "level2_8.tmx",
                         "level2_9.tmx"
                 )),
-                RandomLevel("LEVEL 3", arrayListOf(
+                RandomLevel("\n\nLEVEL 3", arrayListOf(
                         "level3_1.tmx",
                         "level3_2.tmx",
                         "level3_3.tmx",
@@ -64,21 +64,21 @@ class CatGame : Game() {
                         "level3_5.tmx",
                         "level3_6.tmx"
                 )),
-                SingleLevel("LEVEL 4\n\nYOU ONLY HAVE 3 SHOTS!", "level4_1.tmx", shotLimit = 3),
-                RandomLevel("LEVEL 5", arrayListOf(
+                SingleLevel("LEVEL 4\n\nYOU ONLY HAVE\n3 SHOTS!", "level4_1.tmx", shotLimit = 3),
+                RandomLevel("\n\nLEVEL 5", arrayListOf(
                         "level5_1.tmx",
                         "level6_1.tmx",
                         "level7_1.tmx",
                         "level8_1.tmx"
                 )),
-                RandomLevel("LEVEL 6", arrayListOf(
+                RandomLevel("\n\nLEVEL 6", arrayListOf(
                         "level10_2.tmx",
                         "level11_1.tmx",
                         "level12_1.tmx",
                         "level13_1.tmx",
                         "level58_1.tmx"
                 )),
-                SingleLevel("FINAL LEVEL", "level88_1.tmx", shotLimit = 3)
+                SingleLevel("\nFINAL\n\nLEVEL", "level88_1.tmx", shotLimit = 3)
         )
         gameScreen = GameScreen(levels[0])
         createLevelScreen()
