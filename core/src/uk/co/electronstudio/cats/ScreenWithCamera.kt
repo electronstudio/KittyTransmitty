@@ -22,7 +22,7 @@ abstract class ScreenWithCamera(val WIDTH: Float, val HEIGHT: Float) : ScreenAda
 
     val batch = SpriteBatch()
 
-     var cam: OrthographicCamera
+    var cam: OrthographicCamera
 
 
     init {
@@ -55,5 +55,9 @@ abstract class ScreenWithCamera(val WIDTH: Float, val HEIGHT: Float) : ScreenAda
         cam = setupCam(width.toFloat(), height.toFloat())
     }
 
+    override fun dispose() {
+        super.dispose()
+        batch.dispose()
+    }
 
 }

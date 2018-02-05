@@ -2,9 +2,7 @@ package uk.co.electronstudio.cats
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.Screen
 import com.badlogic.gdx.graphics.*
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.maps.tiled.TiledMapTile
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer
@@ -41,19 +39,13 @@ class GameScreen(val level: Level) : ScreenWithCamera(1920f, 1080f) {
 
     var laserTime = 0f
 
-    var bx = 0
+    var bulletX = 0
     var by = 0
 
 
     init {
-
-
         val map = level.getMap()
-
-
-
-
-
+        println("created GameScreen")
 
         for (x: Int in 0..layer.width - 1) {
             for (y: Int in 0..layer.height - 1) {
@@ -61,9 +53,11 @@ class GameScreen(val level: Level) : ScreenWithCamera(1920f, 1080f) {
                 if (cell != null) {
                     if (cell.tile.properties.containsKey("origin")) {
                         origin = Vec(x, y)
+                        println("origin $origin")
                     }
                     if (cell.tile.properties.containsKey("goal")) {
                         goal = Vec(x, y)
+                        println("goal $goal")
                     }
                 }
             }
@@ -83,6 +77,8 @@ class GameScreen(val level: Level) : ScreenWithCamera(1920f, 1080f) {
                 }
             }
         }
+
+        println("found mirrors in tileset ${mirror0.id} ${mirror45.id} ${mirror90.id} ${mirror135.id}")
 
 
     }
@@ -218,7 +214,7 @@ class GameScreen(val level: Level) : ScreenWithCamera(1920f, 1080f) {
         }
 
         batch.begin()
-        batch.draw(CatGame.resources.bullet, (bx - 12).toFloat(), (by - 12).toFloat())
+        batch.draw(CatGame.resources.bullet, (bulletX - 12).toFloat(), (by - 12).toFloat())
         batch.end()
     }
 
@@ -226,19 +222,19 @@ class GameScreen(val level: Level) : ScreenWithCamera(1920f, 1080f) {
     private fun bulletLogic() {
         val target = bulletTarget
         if (target != null) {
-            if (bx < target.x) {
-                bx++
+            if (bulletX < target.x) {
+                bulletX++
             }
             if (by < target.y) {
                 by++
             }
-            if (bx > target.x) {
-                bx--
+            if (bulletX > target.x) {
+                bulletX--
             }
             if (by > target.y) {
                 by--
             }
-            if (bx == target.x.toInt() && by == target.y.toInt()) {
+            if (bulletX == target.x.toInt() && by == target.y.toInt()) {
                 pathCounter++
                 if (pathCounter <= path.lastIndex) {
                     bulletTarget = path[pathCounter]
@@ -331,6 +327,7 @@ class GameScreen(val level: Level) : ScreenWithCamera(1920f, 1080f) {
             val cell = layer.getCell(x, y)
             if (cell != null) {  // mirror clicked, flip the tile
                 val tile = cell.tile
+                println("tile ${tile.id} clicked")
                 if (tile.id == mirror0.id) {
                     cell.setTile(mirror45)
                 } else if (tile.id == mirror45.id) {
@@ -353,7 +350,7 @@ class GameScreen(val level: Level) : ScreenWithCamera(1920f, 1080f) {
         CatGame.resources.soundLaser.play()
         laserTime = 5f
         shots++
-        bx = origin.x * 128
+        bulletX = origin.x * 128
         by = origin.y * 128
 
         calculatePath()
@@ -362,9 +359,6 @@ class GameScreen(val level: Level) : ScreenWithCamera(1920f, 1080f) {
         pathCounter = 0
     }
 
-    override fun dispose() {
-        batch.dispose()
-    }
 
 
     override fun hide() {

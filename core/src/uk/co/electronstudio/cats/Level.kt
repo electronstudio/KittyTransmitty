@@ -18,9 +18,9 @@ class SingleLevel(name: String, val file: String, timeLimit: Float? = null, shot
 }
 
 class RandomLevel(name: String, files: List<String>): Level(name){
-    val maps = files.map { TmxMapLoader().load(it)!! }
+    val m = TmxMapLoader().load(files[MathUtils.random(files.lastIndex)])!!
 
     override fun getMap(): TiledMap{
-        return maps[MathUtils.random(maps.lastIndex)]
+        return m
     }
 }

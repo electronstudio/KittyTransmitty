@@ -96,6 +96,7 @@ class CatGame : Game() {
         resources.musicTheme.play()
 
         level++
+        println("level is now $level")
         if (level > levels.lastIndex) {
             goBackToTitleScreen()
         } else {
